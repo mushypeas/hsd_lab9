@@ -133,15 +133,15 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
 
         // 1) Assign a m1
         for (int row = 0; row < block_row; row++) {
-          for (int col = 0; col < block_col_2; col++) {
-            m1[row*block_col_2 + col] = weight_mat[(i + row)*num_matrix2 + (k + col)];
+          for (int col = 0; col < block_col_1; col++) {
+            m1[row*block_col_1 + col] = input_mat[(i + row)*num_input + (k + col)];
           }
         }
 
         // 2) Assign a m2
-        for (int row = 0; row < block_col_2; row++) {
-          for (int col = 0; col < block_col_1; col++) {
-            m2[row*block_col_1 + col] = input_mat[(k + row)*num_input + (j + col)];
+        for (int row = 0; row < block_col_1; row++) {
+          for (int col = 0; col < block_col_2; col++) {
+            m2[row*block_col_2 + col] = weight_mat[(j + row)*num_matrix2 + (j + col)];
           }
         }
 
@@ -222,7 +222,7 @@ void FPGA::convLowering(const std::vector<std::vector<std::vector<std::vector<fl
   int input_width = inputs[0][0].size();
   int new_height = input_height - conv_height + 1;
   int new_width = input_width - conv_width + 1;
-  
+
   // Assign new_weights
   for (int i = 0; i < conv_channel; i++)
     for (int j = 0; j < input_channel; j++)
