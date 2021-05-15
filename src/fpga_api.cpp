@@ -118,6 +118,9 @@ void FPGA::largeMV(const float* large_mat, const float* input, float* output, in
       int block_col = min(v_size_, num_input-j);
 
 			// 1) Assign a vector
+			for (int k = 0; k < block_col; k++) {
+				vec[k] = input[j + k];
+			}	
 
 			// 2) Assign a matrix
 			for (int row = 0; row < block_row; row++) {
