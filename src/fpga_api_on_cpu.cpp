@@ -149,9 +149,9 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         const float* ret = this->blockMM();
 
         // 4) Accumulate intermediate results
-        for(int n = 0; n<block_row; ++n)
+        for(int m = 0; m<block_col_2; ++m)
         {
-          for(int m = 0; m<block_col_2; ++m)
+          for(int n = 0; n<block_row; ++n)
           {
             output[(k + m)*num_output + (i + n)] += ret[m*v_size_ + n];
           }
