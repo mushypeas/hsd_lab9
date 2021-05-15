@@ -132,10 +132,18 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         int block_col_2 = min(v_size_, num_matrix2-k);
 
         // 1) Assign a m1
-        // IMPLEMENT THIS
+        for (int row = 0; row < block_row; row++) {
+          for (int col = 0; col < block_col_2; col++) {
+            m1[row*block_col_2 + col] = weight_mat[(i + row)*num_matrix2 + (k + col)];
+          }
+        }
 
         // 2) Assign a m2
-        // IMPLEMENT THIS
+        for (int row = 0; row < block_col_2; row++) {
+          for (int col = 0; col < block_col_1; col++) {
+            m2[row*block_col_1 + col] = input_mat[(k + row)*num_input + (j + col)];
+          }
+        }
 
         // 3) Call a function `blockMM() to execute Matrix matrix multiplication
         const float* ret = this->blockMM();
@@ -170,11 +178,17 @@ void FPGA::largeMV(const float* large_mat, const float* input, float* output, in
       int block_row = min(m_size_, num_output-i);
       int block_col = min(v_size_, num_input-j);
 
-      // 1) Assign a vector
-      // IMPLEMENT THIS
+			// 1) Assign a vector
+			for (int k = 0; k < block_col; k++) {
+				vec[k] = input[j + k];
+			}	
 
-      // 2) Assign a matrix
-      // IMPLEMENT THIS
+			// 2) Assign a matrix
+			for (int row = 0; row < block_row; row++) {
+				for (int col = 0; col < block_col; col++) {
+					mat[block_col*row + col] = large_mat[(i + row)*num_input + j + col];
+				}
+			}
 
       // 3) Call a function `blockMV() to execute MV multiplication
       const float* ret = this->blockMV();
@@ -204,13 +218,25 @@ void FPGA::convLowering(const std::vector<std::vector<std::vector<std::vector<fl
   int input_channel = cnn_weights[0].size();
   int conv_height = cnn_weights[0][0].size();
   int conv_width = cnn_weights[0][0][0].size();
-  //int input_channel = cnn_weights.size();
   int input_height = inputs[0].size();
   int input_width = inputs[0][0].size();
-
-  // IMPLEMENT THIS
-  // For example,
-  // new_weights[0][0] = cnn_weights[0][0][0][0];
-  // new_inputs[0][0] = inputs[0][0][0];
+  int new_height = input_height - conv_height + 1;
+  int new_width = input_width - conv_width + 1;
+  
+  // Assign new_weights
+  for (int i = 0; i < conv_channel; i++)
+    for (int j = 0; j < input_channel; j++)
+      for (int k = 0; k < conv_height; k++)
+        for (int n = 0; n < conv_width; n++)
+          new_weights[i][j*conv_height*conv_width + k*conv_width + n] = cnn_weights[i][j][k][n];
+          
+  // Assign new_inputs
+  for (int ch = 0; ch < input_channel; ch++)
+    for (int m_row = 0; m_row < conv_height; m_row++)
+      for (int m_col = 0; m_col < conv_width; m_col++)
+        for (int row = 0; row < new_height; row++)
+          for (int col = 0; col < new_width; col++)
+            new_inputs[ch*conv_height*conv_width + m_row*conv_width + m_col][row*new_width + col]
+              = inputs[ch][m_row + row][m_col + col];
 
 }
