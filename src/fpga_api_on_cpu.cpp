@@ -153,7 +153,7 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         {
           for(int m = 0; m<block_col_2; ++m)
           {
-            output[(i + n) + (k + m)*num_output] += ret[n*v_size_ + m];
+            output[(k + m)*num_output + (i + n)] += ret[m*v_size_ + n];
           }
         }
       }
