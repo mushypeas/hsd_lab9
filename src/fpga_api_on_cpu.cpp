@@ -115,10 +115,10 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
 {
   float* m1 = this->matrix_M1();
   float* m2 = this->matrix_M2();
-
+  float* _output = new float (num_output*num_matrix2);
   // 0) Initialize output vector		
   for(int i = 0; i < num_output*num_matrix2; ++i)
-    output[i] = 0;
+    _output[i] = 0;
 
   for(int i = 0; i < num_output; i += v_size_)
   {
@@ -153,12 +153,19 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         {
           for(int n = 0; n<block_row; ++n)
           {
-            output[(k + m)*num_output + (i + n)] += ret[m*v_size_ + n];
+            _output[(k + m)*num_output + (i + n)] += ret[n*v_size_ + m];
           }
         }
       }
     } 
   }
+  // 5) flip matrix for some reason
+  for(int m = 0; m < num_matrix2; ++m) {
+    for(int n = 0; n < num_output; ++n) {
+      output[m*num_output + n] = _output[n*num_matrix2 + m];
+    }
+  }
+  delete _output;
 }
 
 void FPGA::largeMV(const float* large_mat, const float* input, float* output, int num_input, int num_output)

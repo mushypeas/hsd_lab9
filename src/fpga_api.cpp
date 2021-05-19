@@ -143,10 +143,10 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
 {
   float* m1 = this->matrix_M1();
   float* m2 = this->matrix_M2();
-
+  float* _output = new float (num_output*num_matrix2);
   // 0) Initialize output vector		
   for(int i = 0; i < num_output*num_matrix2; ++i)
-    output[i] = 0;
+    _output[i] = 0;
 
   for(int i = 0; i < num_output; i += v_size_)
   {
@@ -162,14 +162,14 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         // 1) Assign a m1
         for (int row = 0; row < block_row; row++) {
           for (int col = 0; col < block_col_1; col++) {
-            m1[row*block_col_1 + col] = input_mat[(i + row)*num_input + (j + col)];
+            m1[row*block_col_1 + col] = weight_mat[(i + row)*num_input + (j + col)];
           }
         }
 
         // 2) Assign a m2
         for (int row = 0; row < block_col_1; row++) {
           for (int col = 0; col < block_col_2; col++) {
-            m2[row*block_col_2 + col] = weight_mat[(j + row)*num_matrix2 + (k + col)];
+            m2[row*block_col_2 + col] = input_mat[(j + row)*num_matrix2 + (k + col)];
           }
         }
 
@@ -177,17 +177,23 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         const float* ret = this->blockMM();
 
         // 4) Accumulate intermediate results
-        for(int n = 0; n<block_row; ++n)
+        for(int m = 0; m<block_col_2; ++m)
         {
-          for(int m = 0; m<block_col_2; ++m)
+          for(int n = 0; n<block_row; ++n)
           {
-            output[(i + n) + (k + m)*num_output] += ret[n*v_size_ + m];
+            _output[(k + m)*num_output + (i + n)] += ret[n*v_size_ + m];
           }
         }
-        
       }
     } 
   }
+  // 5) flip matrix for some reason
+  for(int m = 0; m < num_matrix2; ++m) {
+    for(int n = 0; n < num_output; ++n) {
+      output[m*num_output + n] = _output[n*num_matrix2 + m];
+    }
+  }
+  delete _output;
 }
 
 void FPGA::convLowering(
