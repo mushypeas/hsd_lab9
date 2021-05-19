@@ -134,14 +134,14 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         // 1) Assign a m1
         for (int row = 0; row < block_row; row++) {
           for (int col = 0; col < block_col_1; col++) {
-            m1[row*block_col_1 + col] = weight_mat[(i + row)*num_input + (j + col)];
+            m1[row*block_col_1 + col] = weight_mat[(k + row)*num_input + (j + col)];
           }
         }
 
         // 2) Assign a m2
         for (int row = 0; row < block_col_1; row++) {
           for (int col = 0; col < block_col_2; col++) {
-            m2[row*block_col_2 + col] = input_mat[(j + row)*num_matrix2 + (k + col)];
+            m2[row*block_col_2 + col] = input_mat[(j + row)*num_matrix2 + (i + col)];
           }
         }
 
@@ -153,7 +153,7 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         {
           for(int n = 0; n<block_row; ++n)
           {
-            output[(i + m)*num_matrix2 + (k + n)] += ret[m*v_size_ + n];
+            output[(k + m)*num_output + (i + n)] += ret[m*v_size_ + n];
           }
         }
       }
