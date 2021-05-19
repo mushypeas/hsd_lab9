@@ -29,32 +29,29 @@ int main(int argc, char const *argv[])
 
   for (int k = 0; k < num_output; k++)
     for (int n = 0; n < num_input; n++)
-      weight_mat[k*num_output + n] = k*10 + n;
+      weight_mat[k*num_input + n] = k*10 + n;
 
   for (int k = 0; k < num_input; k++)
     for (int n = 0; n < num_matrix2; n++)
-      input_mat[k*num_input + n] = k*10 + n;
+      input_mat[k*num_matrix2 + n] = k*10 + n;
 
-      for(int m = 0; m<num_output; ++m)
-        {
-          for(int n = 0; n<num_input; ++n)
-          {
-            printf("%4d ", weight_mat[m*num_output + n]);
-          }
-            printf("\n");
-        }
-    for(int m = 0; m<num_input; ++m)
-        {
-          for(int n = 0; n<num_matrix2; ++n)
-          {
-            printf("%4d ", input_mat[m*num_input + n]);
-          }
-            printf("\n");
-        }
+  for(int m = 0; m<num_output; ++m) {
+    for(int n = 0; n<num_input; ++n) {
+      printf("%4d ", weight_mat[m*num_input + n]);
+    }
+    printf("\n");
+  }
+printf("--------------------------------------------\n");
+  for(int m = 0; m<num_input; ++m) {
+    for(int n = 0; n<num_matrix2; ++n) {
+      printf("%4d ", input_mat[m*num_matrix2 + n]);
+    }
+    printf("\n");
+  }
 
   // 0) Initialize output vector		
   for(int i = 0; i < num_output*num_matrix2; ++i)
-    _output[i] = 0;
+    output[i] = 0;
 
   for(int i = 0; i < num_output; i += v_size_)
   {
@@ -73,7 +70,7 @@ printf("M1\n---------------------\n");
         // 1) Assign a m1
         for (int row = 0; row < block_row; row++) {
           for (int col = 0; col < block_col_1; col++) {
-            m1[row*block_col_1 + col] = weight_mat[(k + row)*num_input + (j + col)];
+            m1[row*block_col_1 + col] = weight_mat[(i + row)*num_input + (j + col)];
             printf("%4d ", m1[row*block_col_1 + col]);
           }
           printf("\n");
@@ -83,7 +80,7 @@ printf("M2\n---------------------\n");
         // 2) Assign a m2
         for (int row = 0; row < block_col_1; row++) {
           for (int col = 0; col < block_col_2; col++) {
-            m2[row*block_col_2 + col] = input_mat[(j + row)*num_matrix2 + (i + col)];
+            m2[row*block_col_2 + col] = input_mat[(j + row)*num_matrix2 + (k + col)];
             printf("%4d ", m2[row*block_col_2 + col]);
           }
           printf("\n");
@@ -93,19 +90,19 @@ printf("M2\n---------------------\n");
         int* ret = blockMM(m1, m2, block_row, block_col_1 ,block_col_2);
 
         // 4) Accumulate intermediate results
-        for(int m = 0; m<block_col_2; ++m)
+        for(int n = 0; n<block_row; ++n)
         {
-          for(int n = 0; n<block_row; ++n)
+        for(int m = 0; m<block_col_2; ++m)
           {
-            output[(k + m)*num_output + (i + n)] += ret[m*v_size_ + n];
+            output[(k + m) + (i + n)*num_matrix2] += ret[n*v_size_ + m];
           }
         }
 printf("_out\n---------------------\n");
-  for(int m = 0; m<num_matrix2; ++m)
+  for(int n = 0; n<num_output; ++n)
   {
-    for(int n = 0; n<num_output; ++n)
+    for(int m = 0; m<num_matrix2; ++m)
     {
-      printf("%6d ", output[m*num_output + n]);
+      printf("%6d ", output[n*num_matrix2 + m]);
     }
       printf("\n");
   }
@@ -116,11 +113,11 @@ printf("_out\n---------------------\n");
     } 
   }
 printf("out\n---------------------\n");
-  for(int m = 0; m<num_matrix2; ++m)
+  for(int n = 0; n<num_output; ++n)
   {
-    for(int n = 0; n<num_output; ++n)
+    for(int m = 0; m<num_matrix2; ++m)
     {
-      printf("%6d ", output[m*num_output + n]);
+      printf("%6d ", output[n*num_matrix2 + m]);
     }
       printf("\n");
   }
