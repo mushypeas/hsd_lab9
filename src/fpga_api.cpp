@@ -143,10 +143,10 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
 {
   float* m1 = this->matrix_M1();
   float* m2 = this->matrix_M2();
-  float* _output = new float (num_output*num_matrix2);
+
   // 0) Initialize output vector		
   for(int i = 0; i < num_output*num_matrix2; ++i)
-    _output[i] = 0;
+    output[i] = 0;
 
   for(int i = 0; i < num_output; i += v_size_)
   {
@@ -181,19 +181,12 @@ void FPGA::largeMM(const float* weight_mat, const float* input_mat, float* outpu
         {
           for(int n = 0; n<block_row; ++n)
           {
-            _output[(k + m)*num_output + (i + n)] += ret[n*v_size_ + m];
+            output[(i + m)*num_matrix2 + (k + n)] += ret[m*v_size_ + n];
           }
         }
       }
     } 
   }
-  // 5) flip matrix for some reason
-  for(int m = 0; m < num_matrix2; ++m) {
-    for(int n = 0; n < num_output; ++n) {
-      output[m*num_output + n] = _output[n*num_matrix2 + m];
-    }
-  }
-  delete _output;
 }
 
 void FPGA::convLowering(

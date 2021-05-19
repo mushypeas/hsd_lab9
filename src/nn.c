@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
         {
           for(int n = 0; n<block_row; ++n)
           {
-            output[(k + m)*num_output + (i + n)] += ret[m*v_size_ + n];
+            output[(i + m)*num_matrix2 + (k + n)] += ret[m*v_size_ + n];
           }
         }
         free(m1);
@@ -83,7 +83,15 @@ int main(int argc, char const *argv[])
       }
     } 
   }
-
+printf("out\n---------------------\n");
+  for(int m = 0; m<num_matrix2; ++m)
+  {
+    for(int n = 0; n<num_output; ++n)
+    {
+      printf("%6d ", output[m*num_output + n]);
+    }
+      printf("\n");
+  }
   free(weight_mat);
   free(input_mat);
   free(output);
